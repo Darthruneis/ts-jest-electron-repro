@@ -4,11 +4,13 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "npm test"
+    "test": "npm test",
+    "start": "electron ."
   },
   "author": "Chris Thompson",
   "license": "ISC",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "electron": "^16.0.1"
   }
 }
