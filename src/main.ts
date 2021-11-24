@@ -1,39 +1,10 @@
-import { app, BrowserWindow } from "electron";
+import { BrowserWindow } from "electron";
 import path = require("path");
-
-const createWindow = () => {
-	const win = new BrowserWindow({
-		width: 800,
-		height: 600,
-		webPreferences: {
-			preload: path.join(__dirname, "preload.js"),
-		},
-	});
-
-	win.loadFile(path.join(__dirname, "../index.html"));
-
-	win.webContents.openDevTools();
-};
-
-app.whenReady().then(() => {
-	createWindow();
-
-	app.on("window-all-closed", () => {
-		if (process.platform !== "darwin") {
-			app.quit();
-		}
-	});
-
-	app.on("activate", () => {
-		if (BrowserWindow.getAllWindows().length === 0) {
-			createWindow();
-		}
-	});
-});
 
 export default class Main {
 	static mainWindow: Electron.BrowserWindow;
 	static application: Electron.App;
+	static windowConstructor: typeof Electron.BrowserWindow;
 
 	private static onWindowAllClosed() {
 		if (process.platform !== "darwin") {
@@ -47,14 +18,19 @@ export default class Main {
 
 	private static onReady() {
 		Main.mainWindow = new BrowserWindow({ width: 800, height: 600 });
-		Main.mainWindow.loadFile("index.html");
+		Main.mainWindow.loadFile(Main.getIndexPagePath());
 		Main.mainWindow.on("closed", Main.onClose);
 	}
 
-	static main(app: Electron.App) {
+	static getIndexPagePath() {
+		return "file://" + path.join(__dirname, "../index.html");
+	}
+
+	static main(app: Electron.App, ctor: typeof Main.windowConstructor) {
 		// we pass the Electron.App object into this function
 		// so this class has no dependencies. This
 		// makes the code easier to write tests for
+		Main.windowConstructor = ctor;
 		Main.application = app;
 		Main.application.on("window-all-closed", Main.onWindowAllClosed);
 		Main.application.on("ready", Main.onReady);
